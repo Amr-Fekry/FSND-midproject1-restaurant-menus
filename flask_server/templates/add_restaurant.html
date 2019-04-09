@@ -5,18 +5,16 @@
   <title>Restaurant Menus</title>
 </head>
 <body>
-
-  <strong>/restaurants/add/</strong>
   
   <h1>Add New Restaurant</h1>
   
-  <form action="#" method="post">
+  <form action="{{ url_for('add_restaurant') }}" method="post">
 
     <input name="restaurant_name" type="text" placeholder="Restaurant Name">
 
     <br><br>
     <input type="submit" value="Add">
-    <a href="#">Cancel</a>
+    <a href="{{ url_for('index') }}">Cancel</a>
   
   </form>
 
