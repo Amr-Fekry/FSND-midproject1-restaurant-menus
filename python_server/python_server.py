@@ -8,6 +8,8 @@ from urllib.parse import parse_qs
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database.db_setup import Base, Restaurant, MenuItem
+import mytemplates
+
 
 # connect to DB and DB tables
 engine = create_engine('sqlite:///../database/restaurantmenu.db')
@@ -22,13 +24,17 @@ class server_handler(BaseHTTPRequestHandler):
     def do_GET(self):
 
         if self.path.endswith("/"):
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write("Welcome to Restaurants Menus App".encode())
+            restaurants_list = session.query(Restaurant).all()
+            self.respond_200(mytemplates.index(restaurants_list))
         else:
             self.send_response(404)
 
+
+    def respond_200(self, content):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(content.encode())
 
 
 
