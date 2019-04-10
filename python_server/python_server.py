@@ -21,14 +21,49 @@ session = DBSession()
 
 class server_handler(BaseHTTPRequestHandler):
 
-    def do_GET(self):
+    def do_GET(self): self.check_routes('GET')
+    def do_POST(self): self.check_routes('POST')
 
-        if self.path.endswith("/"):
-            restaurants_list = session.query(Restaurant).all()
-            self.respond_200(mytemplates.index(restaurants_list))
+    def check_routes(self, method):
+        route = self.route
+
+        if route('/'):
+            self.index()
+        elif route('/restaurants/add/'):
+            self.add_restaurant(method)
+        
+        else: self.send_response(404)
+    
+    def index(self):
+        restaurants_list = session.query(Restaurant).all()
+        self.respond_200(mytemplates.index(restaurants_list))
+
+    def add_restaurant(self, method):
+        if method == 'POST':
+            restaurant_name = self.form_inputs('restaurant_name')
+            if restaurant_name:
+                new_restaurant = Restaurant(name=restaurant_name)
+                session.add(new_restaurant)
+                session.commit()
+                self.respond_303('/')
+            else:
+                self.respond_200("Name field is empty!")
+
         else:
-            self.send_response(404)
+            self.respond_200(mytemplates.add_restaurant())
 
+
+    def form_inputs(self, key):
+        data_byte_length = int(self.headers.get('Content-Length', 0))
+        data = self.rfile.read(data_byte_length).decode()
+        params = parse_qs(data)
+        value = params.get(key)
+        return value[0] if value else False
+
+    def route(self, path):
+        if self.path in [path, path[:-1]]:
+            return True
+        return False
 
     def respond_200(self, content):
         self.send_response(200)
@@ -36,7 +71,10 @@ class server_handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(content.encode())
 
-
+    def respond_303(self, path):
+        self.send_response(303)
+        self.send_header('Location', path)
+        self.end_headers()
 
 if __name__ == '__main__':
     try:

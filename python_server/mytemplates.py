@@ -27,7 +27,7 @@ def index(restaurants_list):
         <ul>
             {}
         </ul>
-        <a href="#">add new restaurant</a>
+        <a href="/restaurants/add">add new restaurant</a>
     """
 
     ul = []
@@ -47,3 +47,23 @@ def index(restaurants_list):
 
 # ------------------------------------------
 
+def add_restaurant():
+    """
+        returns an html add_restaurant form in string foramt
+    """
+
+    body = """
+        <h1>Add New Restaurant</h1>
+
+        <form action="/restaurants/add/" method="post">
+
+        <input name="restaurant_name" type="text" placeholder="Restaurant Name">
+
+        <br><br>
+        <input type="submit" value="Add">
+        <a href="/">Cancel</a>
+
+        </form>
+    """
+
+    return html_layout.format(body)
