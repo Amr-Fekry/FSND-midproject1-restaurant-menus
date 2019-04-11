@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database.db_setup import Base, Restaurant, MenuItem
 import mytemplates
+import re
 
 
 # connect to DB and DB tables
@@ -31,8 +32,16 @@ class server_handler(BaseHTTPRequestHandler):
             self.index()
         elif route('/restaurants/add/'):
             self.add_restaurant(method)
-        
+        elif route('/restaurants/<int:restaurant_id>/edit/'):
+            # self.edit_restaurant(method)
+            self.respond_200("restaurant edit")
+        elif route('/restaurants/<int:restaurant_id>/delete/'):
+            # self.delete_restaurant(method)
+            self.respond_200("restaurant delete")
+
         else: self.send_response(404)
+    
+    # ~~~~~~~~~~~~  ROUTE FUNCTIONS:
     
     def index(self):
         restaurants_list = session.query(Restaurant).all()
@@ -52,6 +61,7 @@ class server_handler(BaseHTTPRequestHandler):
         else:
             self.respond_200(mytemplates.add_restaurant())
 
+    # ~~~~~~~~~~~~  HELPER FUNCTIONS:
 
     def form_inputs(self, key):
         data_byte_length = int(self.headers.get('Content-Length', 0))
@@ -61,9 +71,13 @@ class server_handler(BaseHTTPRequestHandler):
         return value[0] if value else False
 
     def route(self, path):
-        if self.path in [path, path[:-1]]:
-            return True
-        return False
+        path = path.replace('<int:restaurant_id>', '[0-9]+').replace('<int:item_id>', '[0-9]+')
+        path1 = f"^{path}$"
+        path2 = f"^{path[:-1]}$"
+
+        if bool(re.match(path1, self.path)): return True
+        elif bool(re.match(path2, self.path)): return True
+        else: return False
 
     def respond_200(self, content):
         self.send_response(200)
@@ -75,6 +89,8 @@ class server_handler(BaseHTTPRequestHandler):
         self.send_response(303)
         self.send_header('Location', path)
         self.end_headers()
+
+
 
 if __name__ == '__main__':
     try:

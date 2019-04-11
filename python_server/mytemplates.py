@@ -27,7 +27,7 @@ def index(restaurants_list):
         <ul>
             {}
         </ul>
-        <a href="/restaurants/add">add new restaurant</a>
+        <a href="/restaurants/add/">add new restaurant</a>
     """
 
     ul = []
@@ -36,8 +36,8 @@ def index(restaurants_list):
             <li>
               <a href="#">{ restaurant.name }</a>
               <br>
-              <a href="#">Edit</a>
-              <a href="#">Delete</a>
+              <a href="/restaurants/{ restaurant.id }/edit/">Edit</a>
+              <a href="/restaurants/{ restaurant.id }/delete/">Delete</a>
               <hr>
             </li>
         """
