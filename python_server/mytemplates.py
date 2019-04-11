@@ -33,7 +33,7 @@ def index(restaurants_list):
     for restaurant in restaurants_list:
         li = f"""
             <li>
-              <a href="#">{ restaurant.name }</a>
+              <a href="/restaurants/{restaurant.id}/menu/">{ restaurant.name }</a>
               <br>
               <a href="/restaurants/{ restaurant.id }/edit/">Edit</a>
               <a href="/restaurants/{ restaurant.id }/delete/">Delete</a>
@@ -67,6 +67,8 @@ def add_restaurant():
 
 def edit_restaurant(restaurant):
     """
+        args: 
+        restaurant - the Restaurant object of interest
         returns an html edit_restaurant form in string foramt
     """
 
@@ -86,6 +88,8 @@ def edit_restaurant(restaurant):
 
 def delete_restaurant(restaurant):
     """
+        args: 
+        restaurant - the Restaurant object of interest
         returns an html delete_restaurant form in string foramt
     """
 
@@ -98,4 +102,39 @@ def delete_restaurant(restaurant):
     """
 
     return html_layout.format(body)
+
+def restaurant_menu(restaurant, menu_items):
+    """
+        args: 
+        restaurant - the Restaurant object of interest
+        menu_items - a list of MenuItem objects of the restaurant
+        returns: dynamically generated html page (index) in string foramt
+    """
+
+    body = """
+        <h1>{}</h1>
+        <ul>
+            {}
+        </ul>
+        <a href="#">add new item</a>
+        <br>
+        <a href="/">HOME</a>
+    """
+
+    ul = []
+    for item in menu_items:
+        li = f"""
+            <li>
+                Name: { item.name } <br>
+                Course: { item.course } <br>
+                Price: { item.price } <br>
+                Description: { item.description } <br>
+                <a href="#">Edit</a>
+                <a href="#">Delete</a>
+                <hr>            
+            </li>
+        """
+        ul.append(li)
+
+    return html_layout.format(body.format(restaurant.name, ''.join(ul)))
 

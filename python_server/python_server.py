@@ -36,6 +36,8 @@ class server_handler(BaseHTTPRequestHandler):
             self.edit_restaurant(method)
         elif route('/restaurants/<int:restaurant_id>/delete/'):
             self.delete_restaurant(method)
+        elif route('/restaurants/<int:restaurant_id>/menu/'):
+            self.restaurant_menu()
 
         else: self.send_response(404)
     
@@ -91,7 +93,12 @@ class server_handler(BaseHTTPRequestHandler):
         else:
             self.respond_200(mytemplates.delete_restaurant(restaurant))
 
+    def restaurant_menu(self):
+        restaurant_id = self.path.split('/')[2]
+        restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+        menu_items = session.query(MenuItem).filter_by(restaurant_id=restaurant.id).all()
 
+        self.respond_200(mytemplates.restaurant_menu(restaurant, menu_items))
 
     # ~~~~~~~~~~~~  HELPER FUNCTIONS:
 
