@@ -78,18 +78,18 @@ class server_handler(BaseHTTPRequestHandler):
             self.respond_200(mytemplates.edit_restaurant(restaurant))
 
     def delete_restaurant(self, method):
+        restaurant_id = self.path.split('/')[2]
+        restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+
         if method == 'POST':
-            restaurant_name = self.form_inputs('restaurant_name')
-            if restaurant_name:
-                new_restaurant = Restaurant(name=restaurant_name)
-                session.add(new_restaurant)
+            answer = self.form_inputs('answer')
+            if answer == 'yes':
+                session.delete(restaurant)
                 session.commit()
-                self.respond_303('/')
-            else:
-                self.respond_200("Name field is empty!")
+            self.respond_303('/')
 
         else:
-            self.respond_200(mytemplates.add_restaurant())
+            self.respond_200(mytemplates.delete_restaurant(restaurant))
 
 
 

@@ -81,3 +81,21 @@ def edit_restaurant(restaurant):
     """
 
     return html_layout.format(body)
+
+# ------------------------------------------
+
+def delete_restaurant(restaurant):
+    """
+        returns an html delete_restaurant form in string foramt
+    """
+
+    body = f"""
+        <h1>Are you sure you want to delete { restaurant.name } ?</h1>
+        <form action="/restaurants/{restaurant.id}/delete/" method="post">
+          <button name="answer" value="yes">YES</button>
+          <button name="answer" value="no">NO</button>
+        </form>
+    """
+
+    return html_layout.format(body)
+
