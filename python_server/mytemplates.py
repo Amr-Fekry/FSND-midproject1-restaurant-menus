@@ -103,6 +103,8 @@ def delete_restaurant(restaurant):
 
     return html_layout.format(body)
 
+# ------------------------------------------
+
 def restaurant_menu(restaurant, menu_items):
     """
         args: 
@@ -116,7 +118,7 @@ def restaurant_menu(restaurant, menu_items):
         <ul>
             {}
         </ul>
-        <a href="#">add new item</a>
+        <a href="/restaurants/{}/menu/add">add new item</a>
         <br>
         <a href="/">HOME</a>
     """
@@ -136,5 +138,38 @@ def restaurant_menu(restaurant, menu_items):
         """
         ul.append(li)
 
-    return html_layout.format(body.format(restaurant.name, ''.join(ul)))
+    return html_layout.format(body.format(restaurant.name, ''.join(ul), restaurant.id))
 
+# ------------------------------------------
+
+def add_menu_item(restaurant):
+    """
+        args: 
+        restaurant - the Restaurant object of interest
+        returns an html add_menu_item form in string foramt
+    """
+
+    body = f"""
+        <h1>Add New Item</h1>
+        <form action="/restaurants/{restaurant.id}/menu/add" method="post">  
+          <input name="item_name" type="text" placeholder="Item Name">
+          <input name="item_price" type="text" placeholder="Item Price">
+          <br><br>
+          <textarea name="item_description" type="text" placeholder="Item Description" cols="47" rows="5"></textarea>
+          <br><br>
+          <strong>Course:</strong>
+          <br>
+          <input type="radio" name="item_course" value="appetizer"> Appetizer
+          <br>
+          <input type="radio" name="item_course" value="entree"> Entree
+          <br>
+          <input type="radio" name="item_course" value="dessert"> Dessert
+          <br>
+          <input type="radio" name="item_course" value="beverage"> Beverage
+          <br><br>
+          <input type="submit" value="Add">
+          <a href="/restaurants/{restaurant.id}/menu/">Cancel</a>
+        </form>
+    """
+
+    return html_layout.format(body)

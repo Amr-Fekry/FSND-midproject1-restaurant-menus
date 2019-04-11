@@ -38,6 +38,8 @@ class server_handler(BaseHTTPRequestHandler):
             self.delete_restaurant(method)
         elif route('/restaurants/<int:restaurant_id>/menu/'):
             self.restaurant_menu()
+        elif route('/restaurants/<int:restaurant_id>/menu/add'):
+            self.add_menu_item(method)
 
         else: self.send_response(404)
     
@@ -100,14 +102,38 @@ class server_handler(BaseHTTPRequestHandler):
 
         self.respond_200(mytemplates.restaurant_menu(restaurant, menu_items))
 
+    def add_menu_item(self, method):
+        restaurant_id = self.path.split('/')[2]
+        restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+
+        if method == 'POST':
+            form_inputs = self.form_inputs()
+            item_name = form_inputs.get('item_name')[0]
+            item_price = form_inputs.get('item_price')[0]
+            item_description = form_inputs.get('item_description')[0]
+            item_course = form_inputs.get('item_course')[0]
+            if item_name and item_price and item_description and item_course:
+                new_item = MenuItem(name=item_name, price=item_price, description=item_description, course=item_course, restaurant_id=restaurant.id)
+                session.add(new_item)
+                session.commit()
+                self.respond_303(f"/restaurants/{restaurant.id}/menu/")
+            else:
+                self.respond_200("One or more fields is empty!")
+        
+        else:
+            self.respond_200(mytemplates.add_menu_item(restaurant))
+
+
     # ~~~~~~~~~~~~  HELPER FUNCTIONS:
 
-    def form_inputs(self, key):
+    def form_inputs(self, key=''):
         data_byte_length = int(self.headers.get('Content-Length', 0))
         data = self.rfile.read(data_byte_length).decode()
         params = parse_qs(data)
-        value = params.get(key)
-        return value[0] if value else False
+        if key:
+            value = params.get(key)
+            return value[0] if value else False
+        return params
 
     def route(self, path):
         path = path.replace('<int:restaurant_id>', '[0-9]+').replace('<int:item_id>', '[0-9]+')
