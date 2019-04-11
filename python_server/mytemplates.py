@@ -118,7 +118,7 @@ def restaurant_menu(restaurant, menu_items):
         <ul>
             {}
         </ul>
-        <a href="/restaurants/{}/menu/add">add new item</a>
+        <a href="/restaurants/{}/menu/add/">add new item</a>
         <br>
         <a href="/">HOME</a>
     """
@@ -127,12 +127,12 @@ def restaurant_menu(restaurant, menu_items):
     for item in menu_items:
         li = f"""
             <li>
-                Name: { item.name } <br>
-                Course: { item.course } <br>
-                Price: { item.price } <br>
-                Description: { item.description } <br>
-                <a href="#">Edit</a>
-                <a href="#">Delete</a>
+                Name: {item.name} <br>
+                Course: {item.course} <br>
+                Price: {item.price} <br>
+                Description: {item.description} <br>
+                <a href="/restaurants/{restaurant.id}/menu/{item.id}/edit/">Edit</a>
+                <a href="/restaurants/{restaurant.id}/menu/{item.id}/delete/">Delete</a>
                 <hr>            
             </li>
         """
@@ -173,3 +173,39 @@ def add_menu_item(restaurant):
     """
 
     return html_layout.format(body)
+
+# ------------------------------------------
+
+def edit_menu_item(restaurant, menu_item):
+    """
+        args: 
+        restaurant - the Restaurant object of interest
+        menu_item - the MenuItem object of interest
+        returns an html add_menu_item form in string foramt
+    """
+
+    body = f"""
+        <h1>Edit { restaurant.name } > { menu_item.name } </h1>
+        <form action="/restaurants/{restaurant.id}/menu/{menu_item.id}/edit/" method="post">
+          <input name="item_new_name" type="text" placeholder="{ menu_item.name }">
+          <input name="item_new_price" type="text" placeholder="{ menu_item.price }">
+          <br><br>
+          <textarea name="item_new_description" type="text" placeholder="{ menu_item.description }" cols="47" rows="5"></textarea>
+          <br><br>
+          <strong>Course:</strong>
+          <br>
+          <input type="radio" name="item_new_course" value="appetizer"> Appetizer
+          <br>
+          <input type="radio" name="item_new_course" value="entree"> Entree
+          <br>
+          <input type="radio" name="item_new_course" value="dessert"> Dessert
+          <br>
+          <input type="radio" name="item_new_course" value="beverage"> Beverage
+          <br><br>
+          <input type="submit" value="Edit">
+          <a href="/restaurants/{restaurant.id}/menu/">Cancel</a>
+        </form>
+    """
+
+    return html_layout.format(body)
+

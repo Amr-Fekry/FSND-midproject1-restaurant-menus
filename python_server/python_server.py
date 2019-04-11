@@ -24,10 +24,9 @@ class server_handler(BaseHTTPRequestHandler):
 
     def do_GET(self): self.check_routes('GET')
     def do_POST(self): self.check_routes('POST')
-
     def check_routes(self, method):
+        
         route = self.route
-
         if route('/'):
             self.index()
         elif route('/restaurants/add/'):
@@ -38,9 +37,12 @@ class server_handler(BaseHTTPRequestHandler):
             self.delete_restaurant(method)
         elif route('/restaurants/<int:restaurant_id>/menu/'):
             self.restaurant_menu()
-        elif route('/restaurants/<int:restaurant_id>/menu/add'):
+        elif route('/restaurants/<int:restaurant_id>/menu/add/'):
             self.add_menu_item(method)
-
+        elif route('/restaurants/<int:restaurant_id>/menu/<int:item_id>/edit/'):
+            self.edit_menu_item(method)
+        elif route('/restaurants/<int:restaurant_id>/menu/<int:item_id>/delete/'):
+            self.delete_menu_item(method)
         else: self.send_response(404)
     
     # ~~~~~~~~~~~~  ROUTE FUNCTIONS:
@@ -123,6 +125,33 @@ class server_handler(BaseHTTPRequestHandler):
         else:
             self.respond_200(mytemplates.add_menu_item(restaurant))
 
+    def edit_menu_item(self, method):
+        restaurant_id = self.path.split('/')[2]
+        restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+        item_id = self.path.split('/')[4]
+        menu_item = session.query(MenuItem).filter_by(id=item_id).one()
+
+        if method == 'POST':
+            form_inputs = self.form_inputs()
+
+            item_new_name = form_inputs.get('item_new_name')
+            item_new_price = form_inputs.get('item_new_price')
+            item_new_description = form_inputs.get('item_new_description')
+            item_new_course = form_inputs.get('item_new_course')
+
+            if item_new_name: menu_item.name = item_new_name[0]
+            if item_new_price: menu_item.price = item_new_price[0]
+            if item_new_description: menu_item.description = item_new_description[0]
+            if item_new_course: menu_item.course = item_new_course[0]
+            
+            session.add(menu_item)
+            session.commit()
+            self.respond_303(f"/restaurants/{restaurant.id}/menu/")
+        
+        else:
+            self.respond_200(mytemplates.edit_menu_item(restaurant, menu_item))
+
+    def delete_menu_item(self, method): pass
 
     # ~~~~~~~~~~~~  HELPER FUNCTIONS:
 
