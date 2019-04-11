@@ -23,7 +23,6 @@ def index(restaurants_list):
 
     body = """
         <h1>Restaurants</h1>
-        
         <ul>
             {}
         </ul>
@@ -54,15 +53,30 @@ def add_restaurant():
 
     body = """
         <h1>Add New Restaurant</h1>
-
         <form action="/restaurants/add/" method="post">
+          <input name="restaurant_name" type="text" placeholder="Restaurant Name">
+          <br><br>
+          <input type="submit" value="Add">
+          <a href="/">Cancel</a>
+        </form>
+    """
 
-        <input name="restaurant_name" type="text" placeholder="Restaurant Name">
+    return html_layout.format(body)
 
-        <br><br>
-        <input type="submit" value="Add">
-        <a href="/">Cancel</a>
+# ------------------------------------------
 
+def edit_restaurant(restaurant):
+    """
+        returns an html edit_restaurant form in string foramt
+    """
+
+    body = f"""
+        <h1>Edit { restaurant.name }</h1>
+        <form action="/restaurants/{restaurant.id}/edit/" method="post">
+          <input name="restaurant_new_name" type="text" placeholder="{ restaurant.name }">
+          <br><br>
+          <input type="submit" value="Edit">
+          <a href="/">Cancel</a>
         </form>
     """
 

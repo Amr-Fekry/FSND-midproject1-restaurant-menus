@@ -4,7 +4,7 @@ import sys
 sys.path.append("..")
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, unquote
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database.db_setup import Base, Restaurant, MenuItem
@@ -33,11 +33,9 @@ class server_handler(BaseHTTPRequestHandler):
         elif route('/restaurants/add/'):
             self.add_restaurant(method)
         elif route('/restaurants/<int:restaurant_id>/edit/'):
-            # self.edit_restaurant(method)
-            self.respond_200("restaurant edit")
+            self.edit_restaurant(method)
         elif route('/restaurants/<int:restaurant_id>/delete/'):
-            # self.delete_restaurant(method)
-            self.respond_200("restaurant delete")
+            self.delete_restaurant(method)
 
         else: self.send_response(404)
     
@@ -60,6 +58,40 @@ class server_handler(BaseHTTPRequestHandler):
 
         else:
             self.respond_200(mytemplates.add_restaurant())
+
+    def edit_restaurant(self, method):
+        restaurant_id = self.path.split('/')[2]
+        restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+        
+        if method == 'POST':
+            
+            restaurant_new_name = self.form_inputs('restaurant_new_name')
+            if restaurant_new_name:
+                restaurant.name = restaurant_new_name
+                session.add(restaurant)
+                session.commit()
+                self.respond_303('/')
+            else:
+                self.respond_200("You haven't entered a name!")
+
+        else:
+            self.respond_200(mytemplates.edit_restaurant(restaurant))
+
+    def delete_restaurant(self, method):
+        if method == 'POST':
+            restaurant_name = self.form_inputs('restaurant_name')
+            if restaurant_name:
+                new_restaurant = Restaurant(name=restaurant_name)
+                session.add(new_restaurant)
+                session.commit()
+                self.respond_303('/')
+            else:
+                self.respond_200("Name field is empty!")
+
+        else:
+            self.respond_200(mytemplates.add_restaurant())
+
+
 
     # ~~~~~~~~~~~~  HELPER FUNCTIONS:
 
