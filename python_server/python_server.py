@@ -151,7 +151,21 @@ class server_handler(BaseHTTPRequestHandler):
         else:
             self.respond_200(mytemplates.edit_menu_item(restaurant, menu_item))
 
-    def delete_menu_item(self, method): pass
+    def delete_menu_item(self, method):
+        restaurant_id = self.path.split('/')[2]
+        restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+        item_id = self.path.split('/')[4]
+        menu_item = session.query(MenuItem).filter_by(id=item_id).one()
+
+        if method == 'POST':
+            answer = self.form_inputs('answer')
+            if answer == 'yes':
+                session.delete(menu_item)
+                session.commit()
+            self.respond_303(f"/restaurants/{restaurant.id}/menu/")
+
+        else:
+            self.respond_200(mytemplates.delete_menu_item(restaurant, menu_item))
 
     # ~~~~~~~~~~~~  HELPER FUNCTIONS:
 
@@ -183,7 +197,6 @@ class server_handler(BaseHTTPRequestHandler):
         self.send_response(303)
         self.send_header('Location', path)
         self.end_headers()
-
 
 
 if __name__ == '__main__':
