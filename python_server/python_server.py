@@ -25,7 +25,10 @@ class server_handler(BaseHTTPRequestHandler):
     def do_GET(self): self.check_routes('GET')
     def do_POST(self): self.check_routes('POST')
     def check_routes(self, method):
-        
+        """
+        args: method - request method
+        calls the handler function allocated for each request path 
+        """
         route = self.route
         if route('/'):
             self.index()
@@ -45,7 +48,7 @@ class server_handler(BaseHTTPRequestHandler):
             self.delete_menu_item(method)
         else: self.send_response(404)
     
-    # ~~~~~~~~~~~~  ROUTE FUNCTIONS:
+    # ~~~~~~~~~~~~  ROUTE HANDLER FUNCTIONS:
     
     def index(self):
         restaurants_list = session.query(Restaurant).all()
@@ -170,6 +173,12 @@ class server_handler(BaseHTTPRequestHandler):
     # ~~~~~~~~~~~~  HELPER FUNCTIONS:
 
     def form_inputs(self, key=''):
+        """
+        args: key - form input name
+        returns: 
+          if key is not provided: a dict-like object containing all form inputs keys-values
+          if key is provided: the value of the key if any, otherwise False
+        """
         data_byte_length = int(self.headers.get('Content-Length', 0))
         data = self.rfile.read(data_byte_length).decode()
         params = parse_qs(data)
@@ -179,6 +188,11 @@ class server_handler(BaseHTTPRequestHandler):
         return params
 
     def route(self, path):
+        """
+        args: path - a template path to be matched to using regex
+        returns:
+          bool depending on whether the request path matches the temp. path (ignoring trialing slash)
+        """
         path = path.replace('<int:restaurant_id>', '[0-9]+').replace('<int:item_id>', '[0-9]+')
         path1 = f"^{path}$"
         path2 = f"^{path[:-1]}$"
@@ -188,12 +202,20 @@ class server_handler(BaseHTTPRequestHandler):
         else: return False
 
     def respond_200(self, content):
+        """
+        args: content - string to write in response body
+        sends a response with status code = 200, and body = content
+        """
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(content.encode())
 
     def respond_303(self, path):
+        """
+        args: path - string of path to redirect to 
+        sends a response with status code = 303, and redirects to path
+        """
         self.send_response(303)
         self.send_header('Location', path)
         self.end_headers()
@@ -206,7 +228,8 @@ if __name__ == '__main__':
         server_address = (host, port)
         server = HTTPServer(server_address, server_handler)
         
-        print(f"Web server running on port {port}")
+        print(f" * Serving web app \"{__file__}\"")
+        print(f" * Running on localhost:{port} (Press CTRL+C to quit)")
         server.serve_forever()
 
     except KeyboardInterrupt:
