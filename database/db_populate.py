@@ -149,4 +149,7 @@ session.add(menuItem3)
 
 
 session.commit()
-print("added menu items!")
+
+print()
+print("Database has been populated with initial data")
+print()
